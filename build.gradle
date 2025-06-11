@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.github.tatercertified'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://repo.spongepowered.org/maven'
+    }
+}
+
+dependencies {
+    compileOnly 'org.spongepowered:mixin:0.8.5'
+    compileOnly 'org.ow2.asm:asm-tree:9.7'
+    implementation 'org.spongepowered:configurate-hocon:4.2.0'
+    implementation 'org.slf4j:slf4j-api:2.0.12'
+    implementation 'org.jetbrains:annotations:24.1.0'
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
