@@ -16,10 +16,19 @@ import java.util.jar.JarFile;
 
 public final class JarReader {
     private static Path jarPath;
+
+    /**
+     * Sets the path to the jar file
+     * @param path Path to the jar file
+     */
     public static void setJarPath(Path path) {
         jarPath = path;
     }
 
+    /**
+     * Sets the jar file path from a Class in your project
+     * @param clazz Class from your project
+     */
     public static void setJarPathFromClass(Class<?> clazz) {
         try {
             jarPath = Paths.get(clazz.getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -28,6 +37,11 @@ public final class JarReader {
         }
     }
 
+    /**
+     * Gets all {@link ClassNode}s from your project
+     * @return List of all ClassNodes in your project
+     * @throws IOException Failed to read the jar
+     */
     public static List<ClassNode> getClassNodes() throws IOException {
         List<ClassNode> nodes = new ArrayList<>();
         if (jarPath != null) {
