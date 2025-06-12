@@ -52,8 +52,9 @@ Also ensure that these values are set by your code in the MixinConfigPlugin clas
 @Override
 public void onLoad(String s) {
     MixinConfig.init(
-            FabricLoader.getInstance().getConfigDir().toString() + "modid",
-            MyClass.class
+            FabricLoader.getInstance().getConfigDir().toString() + "modid", // Config Path
+            2,                                                              // Config Version
+            MyClass.class                                                   // Class in Your Project
     );
     super(s);
 }
@@ -63,11 +64,27 @@ or alternatively
 @Override
 public void onLoad(String s) {
     MixinConfig.init(
-            FabricLoader.getInstance().getConfigDir().toString() + "modid",
-            FabricLoader.getInstance().getGameDir().resolve("mods/mymod.jar")
+            FabricLoader.getInstance().getConfigDir().toString() + "modid",   // Config Path
+            2,                                                                // Config Version
+            FabricLoader.getInstance().getGameDir().resolve("mods/mymod.jar") // Path to your Jar
     );
     super(s);
 }
+```
+# Config
+```toml
+Config Version = 2 # Config Version
+[ Class0 = true ]  # Class
+ Method01 = true   # Methods
+ Method02 = false
+ Method03 = true
+
+[ Class1 = false ]
+ Method11 = false
+ Method12 = true
+
+ Method21 = true   # Classless Methods
+ Method22 = false
 ```
 
 # License

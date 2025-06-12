@@ -20,7 +20,7 @@ public final class Validator {
      */
     public static void preprocess() {
         NodeUtils.initNodeUtils();
-        if (!ConfigIO.firstLaunch()) {
+        if (!ConfigIO.needsNewConfig()) {
             ConfigIO.readConfig();
         }
         preprocessAnnotations();

@@ -6,14 +6,17 @@ import java.util.LinkedList;
 
 public final class ConfigIO {
     public static final LinkedList<ContainedConfigEntry> ENTRIES = new LinkedList<>();
-    private static Path CONFIG_PATH;
+    private static Path configPath;
+    private static int configVersion;
 
     /**
      * Writes the config to file
      */
     public static void writeConfig() {
-        File config = new File(CONFIG_PATH.toUri());
+        File config = new File(configPath.toUri());
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(config))) {
+            bw.write("Config Version = " + configVersion);
+            bw.newLine();
             for (ContainedConfigEntry containedConfigEntry : ENTRIES) {
                 bw.write(writeLine(containedConfigEntry.classEntry()));
                 bw.newLine();
@@ -32,7 +35,7 @@ public final class ConfigIO {
      * Parses the data from the config
      */
     public static void readConfig() {
-        File config = new File(CONFIG_PATH.toUri());
+        File config = new File(configPath.toUri());
         if (config.exists()) {
             parse(config);
         }
@@ -40,11 +43,11 @@ public final class ConfigIO {
 
     /**
      * If the config needs created
-     * @return True if this is the first launch or the config file is missing, else false
+     * @return True if this is the first launch or the config file is missing/outdated, else false
      */
-    public static boolean firstLaunch() {
-        File config = new File(CONFIG_PATH.toUri());
-        return !config.exists();
+    public static boolean needsNewConfig() {
+        File config = new File(configPath.toUri());
+        return !config.exists() || parseVersion(config) != configVersion;
     }
 
     /**
@@ -52,7 +55,15 @@ public final class ConfigIO {
      * @param path Path to set it to excluding the extension (.txt)
      */
     public static void setConfigPath(String path) {
-        CONFIG_PATH = Path.of(path + ".txt");
+        configPath = Path.of(path + ".txt");
+    }
+
+    /**
+     * Sets the config version variable
+     * @param version Integer version of the config file
+     */
+    public static void setConfigVersion(int version) {
+        configVersion = version;
     }
 
     private static void parse(File config) {
@@ -81,6 +92,16 @@ public final class ConfigIO {
 
         if (!methods.isEmpty() || clazz != null) {
             ENTRIES.add(new ContainedConfigEntry(clazz, methods));
+        }
+    }
+
+    private static int parseVersion(File config) {
+        try (BufferedReader br = new BufferedReader(new FileReader(config))) {
+            String versionLine = br.readLine();
+            String[] parts = versionLine.split("=");
+            return Integer.parseInt(parts[1].strip());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

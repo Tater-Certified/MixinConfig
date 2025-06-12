@@ -108,10 +108,10 @@ public final class NodeUtils {
     }
 
     /**
-     * Assembles the dependency tree and creates a default config on {@link ConfigIO#firstLaunch()}
+     * Assembles the dependency tree and creates a default config on {@link ConfigIO#needsNewConfig()}
      */
     public static void initNodeUtils() {
-        boolean firstLaunch = ConfigIO.firstLaunch();
+        boolean firstLaunch = ConfigIO.needsNewConfig();
         List<ClassNode> classNodes;
         try {
             classNodes = JarReader.getClassNodes();
