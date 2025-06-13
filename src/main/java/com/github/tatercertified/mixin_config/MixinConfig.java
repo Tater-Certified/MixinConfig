@@ -16,7 +16,7 @@ public class MixinConfig {
     /**
      * If more debugging should be enabled: -Dmixinconfig.verbose=true/false
      */
-    public static final boolean VERBOSE = true; //"true".equals(System.getProperty("mixinconfig.verbose"));
+    public static final boolean VERBOSE = "true".equals(System.getProperty("mixinconfig.verbose"));
 
     /**
      * Called on startup by your code.<p>
