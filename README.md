@@ -4,6 +4,8 @@ A library for toggling Mixin Classes and Methods using a config and Annotation.
 # Installing
 MixinConfig is available through Jitpack:
 
+[![](https://jitpack.io/v/Tater-Certified/MixinConfig.svg)](https://jitpack.io/#Tater-Certified/MixinConfig)
+
 __Gradle__
 ```groovy
 repositories {
@@ -11,13 +13,13 @@ repositories {
 }
 
 dependencies {
-    include(implementation("com.github.Tater-Certified:MixinConstraints:Tag"))
+    include(implementation('com.github.Tater-Certified:MixinConfig:Tag'))
 }
 ```
 
 MixinConfig is loader-independent, meaning it will work on any platform that has Mixin support.
 
-Requires **Java 17 or greater**.
+Requires **<u>Java 17 or greater</u>**.
 
 Next you will need to add the MixinPluginConfig to your project.
 The easiest way is to add it to your modid.mixins.json:
@@ -52,7 +54,7 @@ Also ensure that these values are set by your code in the MixinConfigPlugin clas
 @Override
 public void onLoad(String s) {
     MixinConfig.init(
-            FabricLoader.getInstance().getConfigDir().toString() + "modid", // Config Path
+            FabricLoader.getInstance().getConfigDir().resolve("modid.txt"), // Config Path
             2,                                                              // Config Version
             MyClass.class                                                   // Class in Your Project
     );
@@ -64,7 +66,7 @@ or alternatively
 @Override
 public void onLoad(String s) {
     MixinConfig.init(
-            FabricLoader.getInstance().getConfigDir().toString() + "modid",   // Config Path
+            FabricLoader.getInstance().getConfigDir().resolve("modid.txt"),   // Config Path
             2,                                                                // Config Version
             FabricLoader.getInstance().getGameDir().resolve("mods/mymod.jar") // Path to your Jar
     );
@@ -73,19 +75,19 @@ public void onLoad(String s) {
 ```
 # Config
 ```toml
-Config Version = 2 # Config Version
-[ Class0 = true ]  # Class
- Method01 = true   # Methods
- Method02 = false
- Method03 = true
+Config Version = 0     # Current Config Version
 
-[ Class1 = false ]
- Method11 = false
- Method12 = true
+[ Mixin Class ] = true # Mixin Class Declaration
+  Method 1 = true      # Mixin Class Method Declaration
+  Method 2 = false
+  Method 3 = true
 
- Method21 = true   # Classless Methods
- Method22 = false
+  Method 4 = true      # Mixin Classless Method Declaration
+  Method 5 = true
 ```
+
+# Debugging
+You can use the JVM argument `-Dmixinconfig.verbose=true` to enable debug printing in the console
 
 # License
 This project is licensed on the MIT License

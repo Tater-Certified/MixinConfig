@@ -2,3 +2,8 @@
 /.idea
 /run
 /.qodo
+/build
+
+/testmod/.gradle
+/testmod/run
+/testmod/build

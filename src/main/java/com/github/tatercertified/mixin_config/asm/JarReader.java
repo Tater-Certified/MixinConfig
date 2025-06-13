@@ -3,9 +3,11 @@ package com.github.tatercertified.mixin_config.asm;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Stream;
 
 public final class JarReader {
     private static Path jarPath;
@@ -45,22 +48,35 @@ public final class JarReader {
     public static List<ClassNode> getClassNodes() throws IOException {
         List<ClassNode> nodes = new ArrayList<>();
         if (jarPath != null) {
-            JarFile jarFile = new JarFile(jarPath.toString());
-            Enumeration<JarEntry> entries = jarFile.entries();
+            try (JarFile jarFile = new JarFile(jarPath.toString())) {
+                Enumeration<JarEntry> entries = jarFile.entries();
 
-            while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
-                if (entry.getName().endsWith(".class")) {
-                    try (InputStream is = jarFile.getInputStream(entry)) {
-                        ClassReader cr = new ClassReader(is);
-                        ClassNode cn = new ClassNode();
-                        cr.accept(cn, 0);
-                        nodes.add(cn);
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    if (entry.getName().endsWith(".class")) {
+                        try (InputStream is = jarFile.getInputStream(entry)) {
+                            ClassReader cr = new ClassReader(is);
+                            ClassNode cn = new ClassNode();
+                            cr.accept(cn, 0);
+                            nodes.add(cn);
+                        }
                     }
                 }
+            } catch (IOException ignored) {
+                try (Stream<Path> stream = Files.walk(jarPath)) {
+                    stream.filter(path -> path.toString().endsWith(".class"))
+                            .forEach(path -> {
+                                try (InputStream is = new FileInputStream(path.toFile())) {
+                                    ClassReader cr = new ClassReader(is);
+                                    ClassNode cn = new ClassNode();
+                                    cr.accept(cn, 0);
+                                    nodes.add(cn);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+                }
             }
-
-            jarFile.close();
         }
         return nodes;
     }

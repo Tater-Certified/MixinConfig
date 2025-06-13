@@ -1,19 +1,22 @@
 package com.github.tatercertified.mixin_config;
 
+import com.github.tatercertified.mixin_config.config.ConfigIO;
 import com.github.tatercertified.mixin_config.utils.NodeUtils;
 import com.github.tatercertified.mixin_config.validation.Validator;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
 public class MCMixinConfigPlugin implements IMixinConfigPlugin {
+    private short mixinCount = 0;
     /**
      * Called after the plugin is instantiated, do any setup here.<p>
      * Ensure that your code is before the super call or that {@link Validator#preprocess()} is called after you call
-     * {@link MixinConfig#init(String, Class)}
+     * {@link MixinConfig#init(Path, int, Class)}
      * @param s The mixin root package from the config
      */
     @Override
@@ -28,13 +31,25 @@ public class MCMixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetName, String mixinName) {
+        mixinCount++;
         ClassNode node;
         try {
             node = NodeUtils.getNode(mixinName);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        return Validator.process(node);
+        boolean result = Validator.process(node);
+
+        // Check if this is the last Mixin
+        if (mixinCount == NodeUtils.getMixinCount()) {
+            if (MixinConfig.VERBOSE) {
+                MixinConfig.LOGGER.info("Cleaning up");
+            }
+            NodeUtils.finish();
+            Validator.finish();
+            ConfigIO.finish();
+        }
+        return result;
     }
 
     @Override
@@ -52,5 +67,6 @@ public class MCMixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public void postApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
+
     }
 }

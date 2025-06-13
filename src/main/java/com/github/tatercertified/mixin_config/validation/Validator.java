@@ -2,7 +2,6 @@ package com.github.tatercertified.mixin_config.validation;
 
 import com.github.tatercertified.mixin_config.MixinConfig;
 import com.github.tatercertified.mixin_config.annotations.Config;
-import com.github.tatercertified.mixin_config.asm.ASMRemover;
 import com.github.tatercertified.mixin_config.config.ConfigEntry;
 import com.github.tatercertified.mixin_config.config.ConfigIO;
 import com.github.tatercertified.mixin_config.config.ContainedConfigEntry;
@@ -12,15 +11,18 @@ import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.ListIterator;
+
 public final class Validator {
-    private static final NotifyingHashSet<String> DISABLED = new NotifyingHashSet<>("Disabled {}");
+    private static NotifyingHashSet<String> disabled = new NotifyingHashSet<>("Disabled {}");
 
     /**
      * Generates all necessary data for the processing of Mixins
      */
     public static void preprocess() {
+        boolean needsConfig = ConfigIO.needsNewConfig();
         NodeUtils.initNodeUtils();
-        if (!ConfigIO.needsNewConfig()) {
+        if (!needsConfig) {
             ConfigIO.readConfig();
         }
         preprocessAnnotations();
@@ -45,7 +47,9 @@ public final class Validator {
         }
 
         // Process Methods
-        for (MethodNode methodNode : classNode.methods) {
+        ListIterator<MethodNode> iterator = classNode.methods.listIterator();
+        while (iterator.hasNext()) {
+            MethodNode methodNode = iterator.next();
             AnnotationNode annotationNodeMethod = NodeUtils.getAnnotationNode(methodNode);
             if (annotationNodeMethod != null) {
                 Config config = NodeUtils.getInstance(annotationNodeMethod);
@@ -53,7 +57,7 @@ public final class Validator {
                     MixinConfig.LOGGER.info("Processing Method {}", config.name());
                 }
                 if (isDisabled(config.name())) {
-                    ASMRemover.removeMethod(classNode, methodNode);
+                    iterator.remove();
                 }
             }
         }
@@ -61,17 +65,17 @@ public final class Validator {
     }
 
     private static void preprocessAnnotations() {
-        for (ContainedConfigEntry containedEntry : ConfigIO.ENTRIES) {
+        for (ContainedConfigEntry containedEntry : ConfigIO.entries) {
             // Class
             if (containedEntry.classEntry() != null && !containedEntry.classEntry().value()) {
-                DISABLED.add(containedEntry.classEntry().name());
+                disabled.add(containedEntry.classEntry().name());
                 traverseDependencies(containedEntry.classEntry().name());
             }
 
             // Methods
             for (ConfigEntry entry : containedEntry.methodEntries()) {
                 if (!entry.value()) {
-                    DISABLED.add(entry.name());
+                    disabled.add(entry.name());
                     traverseDependencies(entry.name());
                 }
             }
@@ -82,13 +86,27 @@ public final class Validator {
         String[] deps = NodeUtils.getDependencies(entryName);
         if (deps != null) {
             for (String dep : deps) {
-                DISABLED.add(dep);
-                traverseDependencies(dep);
+
+                if (disabled.add(dep)) {
+                    traverseDependencies(dep);
+                }
             }
         }
     }
 
-    private static boolean isDisabled(String entryName) {
-        return DISABLED.contains(entryName);
+    /**
+     * If the entry is disabled by the config or by a dependency
+     * @param entryName Name of the entry: {@link ConfigEntry#name()}
+     * @return True if disabled, else false if not or entryName is invalid
+     */
+    public static boolean isDisabled(String entryName) {
+        return disabled.contains(entryName);
+    }
+
+    /**
+     * Cleans up the static HashSet to free memory
+     */
+    public static void finish() {
+        disabled = null;
     }
 }

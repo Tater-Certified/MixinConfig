@@ -21,7 +21,7 @@ public record ConfigEntry(String name, boolean value, EntryType type) {
      * @return The status of the method/class Mixin (enabled/disabled)
      */
     public static boolean getConfigValue(String name) {
-        for (ContainedConfigEntry containedEntry : ConfigIO.ENTRIES) {
+        for (ContainedConfigEntry containedEntry : ConfigIO.entries) {
             if (containedEntry.classEntry() != null && containedEntry.classEntry().name().equals(name)) {
                 return containedEntry.classEntry().value();
             } else {
@@ -42,7 +42,7 @@ public record ConfigEntry(String name, boolean value, EntryType type) {
      * @return The status of the method/class Mixin (enabled/disabled)
      */
     public static boolean getConfigValue(String methodName, String className) {
-        for (ContainedConfigEntry containedEntry : ConfigIO.ENTRIES) {
+        for (ContainedConfigEntry containedEntry : ConfigIO.entries) {
             if (containedEntry.classEntry() != null && containedEntry.classEntry().name().equals(className)) {
                 for (ConfigEntry entry : containedEntry.methodEntries()) {
                     if (entry.name().equals(methodName)) {

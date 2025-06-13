@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.github.tatercertified.testmod.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.github.tatercertified.testmod.TestModMixinConfigPlugin",
+  "mixins": [
+    "FinalMixin",
+    "OtherMixin",
+    "StartupMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

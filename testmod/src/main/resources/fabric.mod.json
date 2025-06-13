@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "testmod",
+  "version": "${version}",
+
+  "name": "testmod",
+  "description": "A Polymer / Geyser compatibility layer",
+  "authors": [],
+  "contact": {},
+
+  "license": "MIT",
+  "icon": "assets/testmod/icon.png",
+
+  "environment": "server",
+  "entrypoints": {
+    "fabric-datagen": ["com.github.tatercertified.testmod.client.TestmodDataGenerator"],
+    "main": ["com.github.tatercertified.testmod.Testmod"]
+  },
+
+  "mixins": [
+    "testmod.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}"
+  }
+}
