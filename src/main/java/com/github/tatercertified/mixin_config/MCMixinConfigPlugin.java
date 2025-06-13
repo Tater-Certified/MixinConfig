@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 public class MCMixinConfigPlugin implements IMixinConfigPlugin {
-    private short mixinCount = 0;
+    private static short mixinCount = 0;
     /**
      * Called after the plugin is instantiated, do any setup here.<p>
      * Ensure that your code is before the super call or that {@link Validator#preprocess()} is called after you call
@@ -31,6 +31,33 @@ public class MCMixinConfigPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetName, String mixinName) {
+        return processMixinConfig(mixinName);
+    }
+
+    @Override
+    public void acceptTargets(Set<String> set, Set<String> set1) {
+    }
+
+    @Override
+    public List<String> getMixins() {
+        return null;
+    }
+
+    @Override
+    public void preApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
+    }
+
+    @Override
+    public void postApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
+
+    }
+
+    /**
+     * Runs the main logic for MixinConfig to determine if a method/class should apply
+     * @param mixinName Name of the mixin. The 2nd parameter of {@link IMixinConfigPlugin#shouldApplyMixin(String, String)}
+     * @return True if the mixin (class) should apply, false if not
+     */
+    public static boolean processMixinConfig(String mixinName) {
         mixinCount++;
         ClassNode node;
         try {
@@ -50,23 +77,5 @@ public class MCMixinConfigPlugin implements IMixinConfigPlugin {
             ConfigIO.finish();
         }
         return result;
-    }
-
-    @Override
-    public void acceptTargets(Set<String> set, Set<String> set1) {
-    }
-
-    @Override
-    public List<String> getMixins() {
-        return null;
-    }
-
-    @Override
-    public void preApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
-    }
-
-    @Override
-    public void postApply(String s, ClassNode classNode, String s1, IMixinInfo iMixinInfo) {
-
     }
 }
